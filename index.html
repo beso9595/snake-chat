@@ -3,8 +3,39 @@
 <head>
     <title>Snake Chat</title>
     <script>
-        function fill(m) {console.log(m);
-            document.getElementById('name').appendChild(document.createTextNode(m));
+        function getUsername() {
+            return date + '-id';
+        }
+
+        function displayJoin(name) {
+            if (name === getUsername()) {
+                document.getElementById('name').appendChild(document.createTextNode(name));
+            } else {
+                doMessage('', name + ' has joined the chat');
+            }
+        }
+
+        function doSend() {
+            const message = document.getElementById('message').value;
+            if (message) {
+                ws.send(JSON.stringify({
+                    user: getUsername(),
+                    type: 'message',
+                    text: message
+                }));
+                document.getElementById('message').value = null;
+            }
+        }
+
+        function doMessage(user, message) {
+            const msg = document.createElement('TR');
+            const author = document.createElement('TD');
+            const text = document.createElement('TD');
+            author.innerText = user + ': ';
+            text.innerText = message;
+            msg.appendChild(author);
+            msg.appendChild(text);
+            document.getElementById('log').appendChild(msg);
         }
 
         //
@@ -28,10 +59,14 @@
         };
         ws.onmessage = msg => {
             const message = JSON.parse(msg.data);
-            if (message) {console.log(message);
+            if (message) {
+                console.log(message);
                 switch (message.type) {
                     case 'join':
-                        fill(message.user);
+                        displayJoin(message.user);
+                        break;
+                    case 'message':
+                        doMessage(message.user, message.text);
                         break;
                 }
             }
@@ -40,9 +75,16 @@
 </head>
 
 <body>
-    <p id="name"></p>
+    <p id="name">
+        <b>Your name: </b>
+    </p>
+    <table class="w3-table">
+        <tr id="log">
+
+        </tr>
+    </table>
     <input type="text" id="message">
-    <button onclick="send()">Send</button>
+    <button onclick="doSend()">Send</button>
 </body>
 
 </html>

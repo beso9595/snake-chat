@@ -25,6 +25,15 @@ const server = http.createServer((req, res) => {
                             }));
                         });
                         break;
+                    case 'message':
+                        server.clients.forEach(client => {
+                            client.send(JSON.stringify({
+                                type: message.type,
+                                user: message.user,
+                                text: message.text
+                            }));
+                        });
+                        break;
                 }
             }
         });
