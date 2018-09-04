@@ -2,9 +2,47 @@
 
 <head>
     <title>Snake Chat</title>
+    <script>
+        function fill(m) {console.log(m);
+            document.getElementById('name').appendChild(document.createTextNode(m));
+        }
+
+        //
+
+        const ws = new WebSocket('ws://localhost:5000');
+        const date = new Date().getTime().toString();
+
+        ws.onopen = event => {
+            console.log('opened..');
+
+            ws.send(JSON.stringify({
+                date: date,
+                type: 'join'
+            }));
+        };
+        ws.onclose = event => {
+            console.log('closed..');
+        };
+        ws.onerror = e => {
+            console.log('error..');
+        };
+        ws.onmessage = msg => {
+            const message = JSON.parse(msg.data);
+            if (message) {console.log(message);
+                switch (message.type) {
+                    case 'join':
+                        fill(message.user);
+                        break;
+                }
+            }
+        };
+    </script>
 </head>
 
 <body>
+    <p id="name"></p>
+    <input type="text" id="message">
+    <button onclick="send()">Send</button>
 </body>
 
 </html>
