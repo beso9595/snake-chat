@@ -47,17 +47,56 @@ const server = http.createServer((req, res) => {
             throw err
         }
 
-        fs.readFile('node_modules/bootstrap/dist/css/bootstrap.min.css', 'utf8', function (err, css) {
+        fileLoader([
+            {
+                url: 'node_modules/bootstrap/dist/css/bootstrap.min.css',
+                type: 'css'
+            },
+            {
+                url: 'style.css',
+                type: 'css'
+            },
+            {
+                url: 'script.js',
+                type: 'js'
+            }
+        ], [], html, res);
+    });
+});
+
+function fileLoader(filesArray, contentsArray, html, response) {
+    if (filesArray.length > 0) {
+        fs.readFile(filesArray[0].url, 'utf8', function (err, content) {
             if (err) {
                 throw err
             }
 
-            html = html.replace('<style></style>', '<style>' + css + '</style>');
-            res.write(html);
-            res.end();
+            contentsArray.push({
+                type: filesArray[0].type,
+                content: content
+            });
+            filesArray.shift();
+            fileLoader(filesArray, contentsArray, html, response);
         });
-    });
-});
+    } else {
+        let styles = '';
+        let scripts = '';
+        contentsArray.forEach(item => {
+            switch (item.type) {
+                case 'css':
+                    styles += item.content;
+                    break;
+                case 'js':
+                    scripts += item.content;
+                    break;
+            }
+        });
+        html = html.replace('<style></style>', '<style>' + styles + '</style>');
+        html = html.replace('<script></script>', '<script>' + scripts + '</script>');
+        response.write(html);
+        response.end();
+    }
+}
 
 server.listen(port, hostname, () => {
     console.log(`Server running at http://${hostname}:${port}/`);
