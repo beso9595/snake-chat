@@ -6,6 +6,7 @@
         "start": "nodemon index"
     },
     "dependencies": {
-        "ws": "6.0.0"
+        "ws": "6.0.0",
+        "bootstrap": "4.1.3"
     }
 }

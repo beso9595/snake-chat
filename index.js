@@ -42,9 +42,21 @@ const server = http.createServer((req, res) => {
         console.log(error);
     });
 
-    const html = fs.readFileSync('index.html');
-    res.write(html);
-    res.end();
+    fs.readFile('index.html', 'utf8', function (err, html) {
+        if (err) {
+            throw err
+        }
+
+        fs.readFile('node_modules/bootstrap/dist/css/bootstrap.min.css', 'utf8', function (err, css) {
+            if (err) {
+                throw err
+            }
+
+            html = html.replace('<style></style>', '<style>' + css + '</style>');
+            res.write(html);
+            res.end();
+        });
+    });
 });
 
 server.listen(port, hostname, () => {
