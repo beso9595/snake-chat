@@ -22,6 +22,35 @@ function doSend() {
     }
 }
 
+function getLogs() {
+    let arr = [], i = 1, log;
+    while (true) {
+        log = document.getElementById('log-' + i++);
+        if (log) {
+            arr.push(log);
+        } else {
+            break;
+        }
+    }
+    return arr;
+}
+
+function shiftMessages() {
+    let logArray = getLogs();
+    if (logArray.length !== 0) {
+        let node;
+        for (let i = 0; i < logArray.length; i++) {
+            if (logArray[i].childElementCount > 3) {
+                node = logArray[i].firstElementChild;
+                if (i !== logArray.length - 1) {
+                    logArray[i + 1].appendChild(node.cloneNode(true));
+                }
+                node.remove();
+            }
+        }
+    }
+}
+
 function doMessage(user, message) {
     const msg = document.createElement('TR');
     const author = document.createElement('TD');
@@ -30,7 +59,11 @@ function doMessage(user, message) {
     text.innerText = message;
     msg.appendChild(author);
     msg.appendChild(text);
-    document.getElementById('first-log').appendChild(msg);
+    let log1 = document.getElementById('log-1');
+    log1.appendChild(msg);
+    if (log1.childElementCount > 3) {
+        shiftMessages();
+    }
 }
 
 //
